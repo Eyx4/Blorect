@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blorect RB-2024410: User Authentication and Forum</title>
+    <title>Blorect v0.04.194.5: User Authentication and Forum</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,7 +24,7 @@
     <h2>User Panel</h2>
     <div id="userDetails">
         <p><strong>User ID:</strong> <span id="userId"></span></p>
-        <p><strong>Registered Users:</strong> <span id="userCount">0</span></p>
+        <p><strong>Registered Users:</strong> <span id="userCount"></span></p>
     </div>
     <div id="signIn">
         <h3>Sign In</h3>
@@ -47,7 +47,7 @@
 
 <div id="forum">
     <h2>Forum</h2>
-    <textarea id="postContent" rows="4" cols="50" placeholder="Write your post..."></textarea>
+    <textarea id="postContent" rows="4" cols="50" placeholder="Write your post..."></textarea><br>
     <button onclick="postMessage()">Post</button>
     <div id="posts">
         <!-- Forum posts will appear here -->
@@ -55,7 +55,7 @@
 </div>
 
 <script>
-    // Initialize user data
+    // Initialize user data from localStorage or set empty array
     let users = JSON.parse(localStorage.getItem('users')) || [];
     let currentUser = null;
 
@@ -70,7 +70,8 @@
         event.preventDefault();
         const username = document.getElementById('signInUsername').value;
         const password = document.getElementById('signInPassword').value;
-        currentUser = users.find(user => user.username === username && user.password === password);
+
+        currentUser = users.find(user => user.username === username && user.password === hashPassword(password));
         if (currentUser) {
             document.getElementById('userId').textContent = currentUser.id;
             document.getElementById('signInForm').reset();
@@ -87,13 +88,27 @@
         event.preventDefault();
         const username = document.getElementById('registerUsername').value;
         const password = document.getElementById('registerPassword').value;
+
+        // Check if username already exists
+        if (users.some(user => user.username === username)) {
+            alert('Username already exists. Please choose a different one.');
+            return;
+        }
+
         const userId = users.length; // User ID is the count of registered users
-        users.push({ id: userId, username, password });
-        localStorage.setItem('users', JSON.stringify(users));
+        const hashedPassword = hashPassword(password);
+        users.push({ id: userId, username, password: hashedPassword });
+        localStorage.setItem('users', JSON.stringify(users)); // Save updated users array to localStorage
         updateUserCount();
         alert('Registration successful. Please sign in.');
         document.getElementById('registerForm').reset();
     });
+
+    // Function to hash password using a simple hashing function (for demonstration purposes)
+    function hashPassword(password) {
+        // In a real application, use a secure hashing algorithm like bcrypt
+        return btoa(password); // Base64 encoding (not secure for real applications)
+    }
 
     // Function to handle sign-out
     document.getElementById('signOutBtn').addEventListener('click', function() {
