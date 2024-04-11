@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blorect RB-2024410: User Authentication and Forum</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 15px;
+        }
+        #forum {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="userPanel">
+    <h2>User Panel</h2>
+    <div id="userDetails">
+        <p><strong>User ID:</strong> <span id="userId"></span></p>
+        <p><strong>Registered Users:</strong> <span id="userCount">0</span></p>
+    </div>
+    <div id="signIn">
+        <h3>Sign In</h3>
+        <form id="signInForm">
+            <input type="text" id="signInUsername" placeholder="Username" required>
+            <button type="submit">Sign In</button>
+        </form>
+    </div>
+    <div id="register">
+        <h3>Register</h3>
+        <form id="registerForm">
+            <input type="text" id="registerUsername" placeholder="Username" required>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+    <button id="signOutBtn" style="display: none;">Sign Out</button>
+</div>
+
+<div id="forum">
+    <h2>Forum</h2>
+    <textarea id="postContent" rows="4" cols="50" placeholder="Write your post..."></textarea>
+    <button onclick="postMessage()">Post</button>
+    <div id="posts">
+        <!-- Forum posts will appear here -->
+    </div>
+</div>
+
+<script>
+    // Initialize user data
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let currentUser = null;
+
+    // Display user count
+    function updateUserCount() {
+        document.getElementById('userCount').textContent = users.length;
+    }
+    updateUserCount();
+
+    // Function to handle sign-in
+    document.getElementById('signInForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const username = document.getElementById('signInUsername').value;
+        currentUser = users.find(user => user.username === username);
+        if (currentUser) {
+            document.getElementById('userId').textContent = currentUser.id;
+            document.getElementById('signInForm').reset();
+            document.getElementById('signIn').style.display = 'none';
+            document.getElementById('register').style.display = 'none';
+            document.getElementById('signOutBtn').style.display = 'inline';
+        } else {
+            alert('User not found. Please register.');
+        }
+    });
+
+    // Function to handle registration
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const username = document.getElementById('registerUsername').value;
+        const userId = users.length; // User ID is the count of registered users
+        users.push({ id: userId, username });
+        localStorage.setItem('users', JSON.stringify(users));
+        updateUserCount();
+        alert('Registration successful. Please sign in.');
+        document.getElementById('registerForm').reset();
+    });
+
+    // Function to handle sign-out
+    document.getElementById('signOutBtn').addEventListener('click', function() {
+        currentUser = null;
+        document.getElementById('userId').textContent = '';
+        document.getElementById('signIn').style.display = 'block';
+        document.getElementById('register').style.display = 'block';
+        document.getElementById('signOutBtn').style.display = 'none';
+    });
+
+    // Function to post a message in the forum
+    function postMessage() {
+        if (!currentUser) {
+            alert('Please sign in to post.');
+            return;
+        }
+        const postContent = document.getElementById('postContent').value;
+        if (postContent.trim() !== '') {
+            const postElement = document.createElement('p');
+            postElement.textContent = `${currentUser.username}: ${postContent}`;
+            document.getElementById('posts').appendChild(postElement);
+            document.getElementById('postContent').value = '';
+        } else {
+            alert('Please enter a message.');
+        }
+    }
+</script>
+
+</body>
+</html>
