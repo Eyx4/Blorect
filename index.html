@@ -8,6 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            background-color: #f0f0f0; /* Set background color to gray */
         }
         form {
             margin-bottom: 15px;
@@ -28,14 +29,16 @@
     <div id="signIn">
         <h3>Sign In</h3>
         <form id="signInForm">
-            <input type="text" id="signInUsername" placeholder="Username" required>
+            <input type="text" id="signInUsername" placeholder="Username" required><br>
+            <input type="password" id="signInPassword" placeholder="Password" required><br>
             <button type="submit">Sign In</button>
         </form>
     </div>
     <div id="register">
         <h3>Register</h3>
         <form id="registerForm">
-            <input type="text" id="registerUsername" placeholder="Username" required>
+            <input type="text" id="registerUsername" placeholder="Username" required><br>
+            <input type="password" id="registerPassword" placeholder="Password" required><br>
             <button type="submit">Register</button>
         </form>
     </div>
@@ -66,7 +69,8 @@
     document.getElementById('signInForm').addEventListener('submit', function(event) {
         event.preventDefault();
         const username = document.getElementById('signInUsername').value;
-        currentUser = users.find(user => user.username === username);
+        const password = document.getElementById('signInPassword').value;
+        currentUser = users.find(user => user.username === username && user.password === password);
         if (currentUser) {
             document.getElementById('userId').textContent = currentUser.id;
             document.getElementById('signInForm').reset();
@@ -74,7 +78,7 @@
             document.getElementById('register').style.display = 'none';
             document.getElementById('signOutBtn').style.display = 'inline';
         } else {
-            alert('User not found. Please register.');
+            alert('Invalid username or password.');
         }
     });
 
@@ -82,8 +86,9 @@
     document.getElementById('registerForm').addEventListener('submit', function(event) {
         event.preventDefault();
         const username = document.getElementById('registerUsername').value;
+        const password = document.getElementById('registerPassword').value;
         const userId = users.length; // User ID is the count of registered users
-        users.push({ id: userId, username });
+        users.push({ id: userId, username, password });
         localStorage.setItem('users', JSON.stringify(users));
         updateUserCount();
         alert('Registration successful. Please sign in.');
